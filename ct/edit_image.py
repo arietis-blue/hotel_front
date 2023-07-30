@@ -2,8 +2,11 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 import base64
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
-"./fonts/SourceHanSerifJP-Regular.otf"
+load_dotenv(Path(__file__).parent.parent.joinpath(".env"))
+API_KEY =os.environ["API_KEY"]# 自身の API キーを指定
 
 def create_outlined_text(text: str, font_path: str, background_color: tuple, text_color: tuple, outline_color: tuple):
     font_size = 100
