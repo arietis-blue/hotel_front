@@ -1,67 +1,28 @@
-from PIL import Image, ImageDraw, ImageFont
-import io
-import math
-import base64
+from __future__ import absolute_import, unicode_literals
 import os
-from pathlib import Path
-from dotenv import load_dotenv
+import io
 import warnings
+import time
+from PIL import Image
 from stability_sdk import client
 import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 from torchvision.transforms import GaussianBlur
+from celery import Celery, shared_task
+from dotenv import load_dotenv
+from pathlib import Path
+from ..edit_image import image_to_base64, base64_to_image
 
-load_dotenv(Path(__file__).parent.parent.joinpath(".env"))
-API_KEY =os.environ["API_KEY"]# 自身の API キーを指定
+
+load_dotenv(Path(__file__).parent.parent.parent.joinpath(".env"))
+API_KEY =os.environ["API_KEY"]# set your api_key
 os.environ['STABILITY_HOST'] = 'grpc.stability.ai:443'
 
-def create_outlined_text(text: str, font_path: str, background_color: tuple, text_color: tuple, outline_color: tuple):
-    font_size = 100
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    font_path = os.path.join(script_dir, "fonts", font_path)
-    font = ImageFont.truetype(font_path, font_size)
-    text_width, text_height = font.getsize(text)
 
-    # Calculate dimensions that are multiples of 64
-    image_width = math.ceil((text_width + 10) / 64) * 64
-    image_height = math.ceil((text_height + 10) / 64) * 64
-
-    image = Image.new('RGBA', (image_width, image_height), background_color)
-    draw = ImageDraw.Draw(image)
-
-    for adj in [-2, -1, 0, 1, 2]:
-        draw.text((5+adj, 5), text, outline_color, font=font)  
-        draw.text((5, 5+adj), text, outline_color, font=font)  
-
-    draw.text((5, 5), text, text_color, font=font)
-
-    return image
-
-
-def image_to_base64(image: Image) -> str:
-    buffered = io.BytesIO()
-    image.save(buffered, format="PNG")
-    img_str = base64.b64encode(buffered.getvalue())
-    return img_str.decode('utf-8')
-
-
-def change_color(image: Image, color_to_change: tuple, new_color: tuple) -> Image:
-    image = image.convert("RGBA")
-    datas = image.getdata()
-
-    new_data = []
-    for item in datas:
-        if item[0] == color_to_change[0] and item[1] == color_to_change[1] and item[2] == color_to_change[2]:
-            new_data.append((new_color[0], new_color[1], new_color[2], item[3]))
-        else:
-            new_data.append(item)
-
-    image.putdata(new_data)
-    return image
-
-
-def create_text(img, mask_i):
+@shared_task
+def create_text(img, mask_i, prompt):
 
     # Set up our connection to the API.
+    print("画像生成始まっていますよ")
     stability_api = client.StabilityInference(
         key=API_KEY, # API Key reference.
         verbose=True, # Print debug messages.
@@ -72,21 +33,23 @@ def create_text(img, mask_i):
     # Feathering the edges of our mask generally helps provide a better result. Alternately, you can feather the mask in a suite like Photoshop or GIMP.
     # blur = GaussianBlur(11,20)
     # mask = blur(mask_i)
+    img = base64_to_image(img)
+    mask_i = base64_to_image(mask_i)
     mask = mask_i.convert("L")
 
     answers = stability_api.generate(
-        prompt="clear ocean",
+        prompt=prompt,
         init_image=img,
         mask_image=mask,
         start_schedule=1,
         seed=44332211, # If attempting to transform an image that was previously generated with our API,
                     # initial images benefit from having their own distinct seed rather than using the seed of the original image generation.
-        steps=30, # Amount of inference steps performed on image generation. Defaults to 30.
+        steps=10, # Amount of inference steps performed on image generation. Defaults to 30.
         cfg_scale=8.0, # Influences how strongly your generation is guided to match your prompt.
                     # Setting this value higher increases the strength in which it tries to match your prompt.
                     # Defaults to 7.0 if not specified.
-        width=1024, # Generation width, if not included defaults to 512 or 1024 depending on the engine.
-        height=1024, # Generation height, if not included defaults to 512 or 1024 depending on the engine.
+        width=128, # Generation width, if not included defaults to 512 or 1024 depending on the engine.
+        height=128, # Generation height, if not included defaults to 512 or 1024 depending on the engine.
         sampler=generation.SAMPLER_K_DPMPP_2M # Choose which sampler we want to denoise our generation with.
                                                     # Defaults to k_lms if not specified. Clip Guidance only supports ancestral samplers.
                                                     # (Available Samplers: ddim, plms, k_euler, k_euler_ancestral, k_heun, k_dpm_2, k_dpm_2_ancestral, k_dpmpp_2s_ancestral, k_lms, k_dpmpp_2m, k_dpmpp_sde)
@@ -97,17 +60,27 @@ def create_text(img, mask_i):
     for resp in answers:
         for artifact in resp.artifacts:
             if artifact.finish_reason == generation.FILTER:
-                warnings.warn(
+                print("画像ができていません-----------------")
+                warning_message = (
                     "Your request activated the API's safety filters and could not be processed."
-                    "Please modify the prompt and try again.")
+                    "Please modify the prompt and try again."
+                )
+                return warning_message
             if artifact.type == generation.ARTIFACT_IMAGE:
-                global img2
                 img2 = Image.open(io.BytesIO(artifact.binary))
+                img2 = image_to_base64(img2)
+                print("画像ができました------------------------------")
                 return img2 # Save our completed image with its seed number as the filename.
 
+# export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+# celery -A ct_api worker --concurrency=1 -l info
 
-def base64_to_image(b64_string: str) -> Image:
-    decoded = base64.b64decode(b64_string)
-    buffered = io.BytesIO(decoded)
-    img = Image.open(buffered)
-    return img
+# @shared_task
+# def create_text(img, mask_i, prompt):
+
+#     time.sleep(20)
+#     img = base64_to_image(img)
+#     mask_i = base64_to_image(mask_i)
+#     img = image_to_base64(img)
+#     print(prompt)
+#     return img

@@ -11,6 +11,8 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+# os.environ['OBJC_DISABLE_INITIALIZE_FORK_SAFETY'] = 'YES'
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ct_api.settings')
 
 application = get_wsgi_application()
