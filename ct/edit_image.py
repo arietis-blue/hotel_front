@@ -106,3 +106,8 @@ def create_text(img, mask_i):
                 return img2 # Save our completed image with its seed number as the filename.
 
 
+def base64_to_image(b64_string: str) -> Image:
+    decoded = base64.b64decode(b64_string)
+    buffered = io.BytesIO(decoded)
+    img = Image.open(buffered)
+    return img
