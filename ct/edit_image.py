@@ -11,28 +11,43 @@ import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
 from torchvision.transforms import GaussianBlur
 
 load_dotenv(Path(__file__).parent.parent.joinpath(".env"))
-API_KEY =os.environ["API_KEY"]# 自身の API キーを指定
+API_KEY =os.environ["API_KEY"]
 os.environ['STABILITY_HOST'] = 'grpc.stability.ai:443'
 
+
+
 def create_outlined_text(text: str, font_path: str, background_color: tuple, text_color: tuple, outline_color: tuple):
-    font_size = 100
+    max_dimension = 512
+    padding = 5
+    font_size = 200
+    
+    # Initialize font with initial size
     script_dir = os.path.dirname(os.path.abspath(__file__))
     font_path = os.path.join(script_dir, "fonts", font_path)
     font = ImageFont.truetype(font_path, font_size)
     text_width, text_height = font.getsize(text)
 
-    # Calculate dimensions that are multiples of 64
-    image_width = math.ceil((text_width + 10) / 64) * 64
-    image_height = math.ceil((text_height + 10) / 64) * 64
+    # Reduce font size until text fits within the image
+    while text_width + padding > max_dimension or text_height + padding > max_dimension:
+        font_size -= 1
+        font = ImageFont.truetype(font_path, font_size)
+        text_width, text_height = font.getsize(text)
 
-    image = Image.new('RGBA', (image_width, image_height), background_color)
+    image = Image.new('RGBA', (max_dimension, max_dimension), background_color)
     draw = ImageDraw.Draw(image)
 
-    for adj in [-2, -1, 0, 1, 2]:
-        draw.text((5+adj, 5), text, outline_color, font=font)  
-        draw.text((5, 5+adj), text, outline_color, font=font)  
+    # Calculate padding for both sides
+    x_padding = (max_dimension - text_width) // 2
+    y_padding = (max_dimension - text_height) // 2
 
-    draw.text((5, 5), text, text_color, font=font)
+    # Draw outline
+    for adj in range(-2, 3):
+        for adj_y in range(-2, 3):
+            if adj != 0 or adj_y != 0:
+                draw.text((5 + adj + x_padding, 5 + adj_y + y_padding), text, outline_color, font=font)
+
+    # Draw main text
+    draw.text((5 + x_padding, 5 + y_padding), text, text_color, font=font)
 
     return image
 
