@@ -20,3 +20,19 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+# バックエンド
+# export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+# python manage.py runserver
+
+# フロントエンド
+# cd frontend
+# npm install
+# npm start
+
+# redis
+# redis-server
+
+# celery
+# celery -A ct_api worker --concurrency=1 -l info
