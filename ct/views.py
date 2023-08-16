@@ -5,6 +5,7 @@ from rest_framework import status
 from celery.result import AsyncResult
 from .tasks.c_text import create_text
 from .edit_image import create_outlined_text, image_to_base64, base64_to_image
+from rest_framework import permissions
 
 # Create your views here.
 
@@ -27,17 +28,16 @@ class Textframe(APIView):
         
 
 class Start(APIView):
-    def get(self, request):
-        image = request.GET.get('image', None)
-        mask = request.GET.get('mask', None)
-        prompt = request.GET.get('prompt', None)
-        if mask is not None:
-            print("画像はok")
-        print(prompt)
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):
+        image = request.data.get('image', None)  
+        mask = request.data.get('mask', None)    
+        prompt = request.data.get('prompt', None)
+        # img = base64_to_image(mask)
+        # img.show()
         if image is not None and prompt is not None:
+            print("タスクスタートはできてる")
             task = create_text.delay(image, mask, prompt)
-            print("タスクが触れたぞ！！！")
-            print(task.id)
             return Response({'task_id': task.id}, status=202)
         elif image is None:
             return Response({"error": "create text frame"}, status=status.HTTP_400_BAD_REQUEST)
@@ -46,19 +46,16 @@ class Start(APIView):
     
 
 class Poll(APIView):
-    def get(self, request):
-        task_id = request.GET.get('task_id', None)
-        print("タスク来てる")
-        print(task_id)
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):
+        task_id = request.data.get('task_id', None)
+        print("タスクチェック中")
         if task_id is None:
             return Response({'error': 'Missing task_id parameter'}, status=400)
-
         task = AsyncResult(task_id)
         if task.ready():
-            print("完成")
-            # print(task.result)
+            print("タスクはできてるけどおかしいよ")
             return Response({'state': 'READY', 'result': task.result})
         else:
-            print(" 準備中")
             return Response({'state': 'PENDING'})
 

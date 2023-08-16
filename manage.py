@@ -35,4 +35,4 @@ if __name__ == '__main__':
 # redis-server
 
 # celery
-# 
+# celery -A ct_api worker --concurrency=1 -l info
