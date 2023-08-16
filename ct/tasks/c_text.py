@@ -136,3 +136,4 @@ def create_text(img, mask_i, prompt):
 #     base64_image_str = encoded_image_data.decode('utf-8')
 
 #     return base64_image_str
+#サンプル
