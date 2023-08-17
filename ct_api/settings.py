@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +23,13 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-vpum35=jgtz&rppp2nl)o7he@_(-))30yom7zxw1(b&j-*q!as'
+load_dotenv(Path(__file__).parent.parent.joinpath(".env"))
+SECRET_KEY =os.environ["SC_KEY"]# set your api_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['13.54.159.118']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -63,6 +67,7 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_WHITELIST = ( 
     'http://localhost:3000', 
+    'http://192.168.2.105:3000',
 )
 
 ROOT_URLCONF = 'ct_api.urls'

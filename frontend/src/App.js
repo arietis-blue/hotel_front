@@ -18,6 +18,8 @@ function MyMapComponent() {
   const csrfToken = getCookie('csrftoken');
 
   function getCookie(name) {
+    // console.log('All cookies:', document.cookie);
+    // console.log('Looking for cookie with name:', name);
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
       const cookies = document.cookie.split(';');
@@ -82,9 +84,9 @@ function MyMapComponent() {
 
 // -------------
   const startTask = async (location) => {
-    console.log(location);
+    console.log(csrfToken);
     try {
-      const response = await axios.post('http://localhost:8000/ct/api/create_image/', {
+      const response = await axios.post('http://127.0.0.1:8000/ct/api/create_image/', {
         latitude: location.lat,
         longitude: location.lng,
       }, {
@@ -108,7 +110,7 @@ function MyMapComponent() {
   
     try {
         const response = await axios.post(
-          'http://localhost:8000/ct/api/check_state/',
+          'http://127.0.0.1:8000/ct/api/check_state/',
           { task_id: taskID },
           {
             // ヘッダーにCSRFトークンを設定
