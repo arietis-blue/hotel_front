@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 from rest_framework import status
 from celery.result import AsyncResult
 from .tasks.c_text import res
-from .edit_image import create_outlined_text, image_to_base64, base64_to_image
 from rest_framework import permissions
 
 # Create your views here.
