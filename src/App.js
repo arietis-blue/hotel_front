@@ -136,7 +136,7 @@ function MyMapComponent() {
 
   useEffect(() => {
       if (taskID !== null && taskState !== 'READY') {
-          const timer = setTimeout(pollTaskState, 3000);
+          const timer = setTimeout(pollTaskState, 1000);
           return () => clearTimeout(timer);
       } 
   }, [taskID, taskState, pollTaskState]);
