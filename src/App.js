@@ -109,8 +109,8 @@ function MyMapComponent() {
 
 // タスク投げ
   const startTask = async (location) => {
-    console.log(csrfToken);
-    console.log(otherOptions);
+    // console.log(csrfToken);
+    // console.log(otherOptions);
     try {
       const response = await axios.post('https://restaurantback-0509c72586a3.herokuapp.com/ct/api/create_image/', {
       // const response = await axios.post('http://127.0.0.1:8000/ct/api/create_image/', {
@@ -125,7 +125,6 @@ function MyMapComponent() {
           'X-CSRFToken': csrfToken
         }
       });
-      console.log("task_started");
       setTaskID(response.data.task_id);
       setTaskState(null);
     } catch (error) {
@@ -135,7 +134,6 @@ function MyMapComponent() {
 
 // タスクチェック&完了処理
   const pollTaskState = useCallback(async () => {
-    console.log(taskID);
     if (taskID === null) {
         return;
     }
@@ -153,7 +151,6 @@ function MyMapComponent() {
           }
         );
         var data = response.data;
-        console.log(data);
         setTaskState(data.state);
         if (data.state === 'READY') {
           const result = JSON.parse(data.result);
