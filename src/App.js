@@ -3,6 +3,23 @@ import { GoogleMap, Marker, InfoWindow, LoadScript } from '@react-google-maps/ap
 import axios from 'axios';
 
 function MyMapComponent() {
+  const [budget, setBudget] = useState("");
+  const [genre, setGenre] = useState("");
+  const [range, setRange] = useState(1);
+  const [otherOptions, setOtherOptions] = useState({
+    飲み放題: 0,
+    食べ放題: 0,
+    個室: 0,
+    日本酒: 0,
+    ワイン: 0,
+    駐車場: 0,
+    カード: 0,
+    ペット: 0,
+  });
+
+  const handleBudgetChange = (event) => setBudget(event.target.value);
+  const handleGenreChange = (event) => setGenre(event.target.value);
+  const handleRangeChange = (event) => setRange(event.target.value);
   const mapRef = useRef(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [resMarkers, setResMarkers] = useState([]);
@@ -11,6 +28,7 @@ function MyMapComponent() {
     lat: 35.681263,
     lng: 139.767937
   });
+
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [iframeUrl, setIframeUrl] = useState(null);
   const [taskID, setTaskID] = useState(null);
@@ -34,18 +52,27 @@ function MyMapComponent() {
     return cookieValue;
   }
 
+  const handleCheckboxChange = (event) => {
+    const name = event.target.name;
+    const checked = event.target.checked;
+    setOtherOptions((prevOptions) => ({
+      ...prevOptions,
+      [name]: checked ? 1 : 0
+    }));
+  };
+
   const onMapLoad = useCallback((map) => {
     setCenter(map.getCenter().toJSON());
     mapRef.current = map;
   }, []);
 
-  const createCustomMarkerIcon = (color, size) => {
+  const createCustomMarkerIcon = (innercolor, outercolor, size) => {
     return {
       path: window.google.maps.SymbolPath.CIRCLE,
-      fillColor: color,
+      fillColor: innercolor,
       fillOpacity: 1,
-      strokeColor: color,
-      strokeWeight: 0,
+      strokeColor: outercolor,
+      strokeWeight: 5,
       scale: size // 大きさを設定
     };
   };
@@ -56,15 +83,13 @@ function MyMapComponent() {
   };
 
   const onClickHandler = (event) => {
-    const location = event.latLng.toJSON();
     setSearchButtonVisible(false);
-    // setSelectedMarker(null);
+    setSelectedMarker(null);
+    const location = event.latLng.toJSON();
     setSelectedLocation(location);
-    setSearchButtonVisible(false); 
   };
   // 地図上のマーカー
   const markerClickHandler = () => {
-    // setSelectedMarker(null);
     setSearchButtonVisible(true); // マーカーをクリックした際にボタンを表示する
   };
   // レストランのマーカー
@@ -79,16 +104,22 @@ function MyMapComponent() {
 
   const searchButtonClickHandler = () => {
     startTask(selectedLocation);
-    // setSearchButtonVisible(false);
+    setSearchButtonVisible(false);
   };
 
-// -------------
+// タスク投げ
   const startTask = async (location) => {
     console.log(csrfToken);
+    console.log(otherOptions);
     try {
       const response = await axios.post('https://restaurantback-0509c72586a3.herokuapp.com/ct/api/create_image/', {
+      // const response = await axios.post('http://127.0.0.1:8000/ct/api/create_image/', {
         latitude: location.lat,
         longitude: location.lng,
+        genre: genre,
+        budget: budget,
+        range: range,
+        otheroptions: otherOptions,
       }, {
         headers: {
           'X-CSRFToken': csrfToken
@@ -102,6 +133,7 @@ function MyMapComponent() {
     }
   };
 
+// タスクチェック&完了処理
   const pollTaskState = useCallback(async () => {
     console.log(taskID);
     if (taskID === null) {
@@ -111,6 +143,7 @@ function MyMapComponent() {
     try {
         const response = await axios.post(
           'https://restaurantback-0509c72586a3.herokuapp.com/ct/api/check_state/',
+          // 'http://127.0.0.1:8000/ct/api/check_state/',
           { task_id: taskID },
           {
             // ヘッダーにCSRFトークンを設定
@@ -146,6 +179,75 @@ function MyMapComponent() {
 
   return (
     <div>
+      <div className="filter-container">
+        <label>予算:</label>
+        <select value={budget} onChange={handleBudgetChange}>
+          <option value="">指定なし</option>
+          <option value="B009">~500円</option>
+          <option value="B010">501～1000円</option>
+          <option value="B011">1001～1500円</option>
+          <option value="B001">1501～2000円</option>
+          <option value="B002">2001～3000円</option>
+          <option value="B003">3001～4000円</option>
+          <option value="B003">4001～5000円</option>
+          <option value="B004">5001～7000円</option>
+          <option value="B005">7001～10000円</option>
+          <option value="B006">10001～15000円</option>
+          <option value="B012">15001～20000円</option>
+          <option value="B013">20001～30000円</option>
+          <option value="B014">30001円〜</option>
+        </select>
+
+        <label>ジャンル:</label>
+        <select value={genre} onChange={handleGenreChange}>
+          <option value="">指定なし</option>
+          <option value="G001">居酒屋</option>
+          <option value="G002">ダイニングバー・バル</option>
+          <option value="G003">創作料理</option>
+          <option value="G004">和食</option>
+          <option value="G005">洋食</option>
+          <option value="G006">イタリアン・フレンチ</option>
+          <option value="G007">中華</option>
+          <option value="G008">焼肉・ホルモン</option>
+          <option value="G017">韓国料理</option>
+          <option value="G009">アジア・エスニック料理</option>
+          <option value="G010">各国料理</option>
+          <option value="G011">カラオケ・パーティ</option>
+          <option value="G012">バー・カクテル</option>
+          <option value="G013">ラーメン</option>
+          <option value="G016">お好み焼き・もんじゃ</option>
+          <option value="G014">カフェ・スイーツ</option>
+          <option value="G015">その他グルメ</option>
+        </select>
+
+        <label>検索範囲:</label>
+        <select value={range} onChange={handleRangeChange}>
+          <option value="1">300m</option>
+          <option value="2">500m</option>
+          <option value="3">1000m</option>
+          <option value="4">2000m</option>
+          <option value="5">3000m</option>
+        </select>
+
+      </div>
+
+      <div className="filter-container">
+
+      <label>その他項目:</label>
+      {Object.keys(otherOptions).map((option, index) => (
+        <div key={index}>
+          <input
+            type="checkbox"
+            name={option}
+            value={option}
+            checked={otherOptions[option] === 1}
+            onChange={handleCheckboxChange}
+          />
+          <label>{option}</label>
+        </div>
+        ))}
+      </div>
+
       <LoadScript
         googleMapsApiKey={process.env.REACT_APP_GM_API}
       >
@@ -168,7 +270,7 @@ function MyMapComponent() {
               <Marker
                 key={index}
                 position={{ lat: marker.lat, lng: marker.lng }}
-                icon={createCustomMarkerIcon('blue', 10)}
+                icon={createCustomMarkerIcon('lightgreen','green', 10)}
                 onClick={() => onMarkerClick(marker)} // クリックハンドラを追加
               />
             ))}
@@ -190,6 +292,9 @@ function MyMapComponent() {
             )}
           </GoogleMap>
       </LoadScript>
+      {resMarkers.length === 0 && taskState === 'READY' && (
+        <p>レストランが見つかりませんでした</p>
+      )}
       {iframeUrl && <iframe src={iframeUrl} width="100%" height="500px" title="your selected restaurant" />}
     </div>
   );
