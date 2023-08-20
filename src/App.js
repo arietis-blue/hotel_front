@@ -66,13 +66,13 @@ function MyMapComponent() {
     mapRef.current = map;
   }, []);
 
-  const createCustomMarkerIcon = (color, size) => {
+  const createCustomMarkerIcon = (innercolor, outercolor, size) => {
     return {
       path: window.google.maps.SymbolPath.CIRCLE,
-      fillColor: color,
+      fillColor: innercolor,
       fillOpacity: 1,
-      strokeColor: color,
-      strokeWeight: 0,
+      strokeColor: outercolor,
+      strokeWeight: 5,
       scale: size // 大きさを設定
     };
   };
@@ -107,13 +107,18 @@ function MyMapComponent() {
     setSearchButtonVisible(false);
   };
 
-// -------------
+// タスク投げ
   const startTask = async (location) => {
     console.log(csrfToken);
+    console.log(otherOptions);
     try {
       const response = await axios.post('http://127.0.0.1:8000/ct/api/create_image/', {
         latitude: location.lat,
         longitude: location.lng,
+        genre: genre,
+        budget: budget,
+        range: range,
+        otheroptions: otherOptions,
       }, {
         headers: {
           'X-CSRFToken': csrfToken
@@ -127,6 +132,7 @@ function MyMapComponent() {
     }
   };
 
+// タスクチェック&完了処理
   const pollTaskState = useCallback(async () => {
     console.log(taskID);
     if (taskID === null) {
@@ -262,7 +268,7 @@ function MyMapComponent() {
               <Marker
                 key={index}
                 position={{ lat: marker.lat, lng: marker.lng }}
-                icon={createCustomMarkerIcon('blue', 10)}
+                icon={createCustomMarkerIcon('lightgreen','green', 10)}
                 onClick={() => onMarkerClick(marker)} // クリックハンドラを追加
               />
             ))}
@@ -284,6 +290,9 @@ function MyMapComponent() {
             )}
           </GoogleMap>
       </LoadScript>
+      {resMarkers.length === 0 && taskState === 'READY' && (
+        <p>レストランが見つかりませんでした</p>
+      )}
       {iframeUrl && <iframe src={iframeUrl} width="100%" height="500px" title="your selected restaurant" />}
     </div>
   );
