@@ -36,3 +36,42 @@
     transform: rotate(360deg);
   }
 }
+
+.map-container {
+  border: 8px solid hsl(196, 100%, 55%); /* 枠線の太さと色を調整 */
+  border-radius: 10px;
+  background-color: #d2e1ff;
+  margin: 20px 0px; /* 余白の調整 */
+}
+
+.selecter {
+  border: 8px solid hsl(196, 100%, 55%); /* 枠線の太さと色を調整 */
+  background-color: #d2e1ff;
+  border-radius: 10px;
+  margin: 20px 0px; /* 余白の調整 */
+  padding: 15px;
+}
+
+.selecter label {
+  line-height: 2; /* 倍率または固定値（pxなど）で指定します */
+  font-size: 16px; /* 文字の大きさを指定 */
+}
+
+
+.other-options-container {
+  display: flex;
+  flex-wrap: wrap; /* 画面サイズが小さい場合、項目を折り返す */
+  gap: 10px; /* 項目間の隙間 */
+}
+
+.other-option-item {
+  display: flex;
+  align-items: center;
+  margin-right: 10px; /* 項目間の横の隙間 */
+}
+
+h3{
+  margin:10px;
+}
+
+
