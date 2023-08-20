@@ -186,7 +186,7 @@ function MyMapComponent() {
           <option value="B001">1501～2000円</option>
           <option value="B002">2001～3000円</option>
           <option value="B003">3001～4000円</option>
-          <option value="B003">4001～5000円</option>
+          <option value="B008">4001～5000円</option>
           <option value="B004">5001～7000円</option>
           <option value="B005">7001～10000円</option>
           <option value="B006">10001～15000円</option>
@@ -293,6 +293,7 @@ function MyMapComponent() {
         <p>レストランが見つかりませんでした</p>
       )}
       {iframeUrl && <iframe src={iframeUrl} width="100%" height="500px" title="your selected restaurant" />}
+      Powered by <a href="http://webservice.recruit.co.jp/">ホットペッパー Webサービス</a>
     </div>
   );
 }
