@@ -86,7 +86,7 @@ function MyMapComponent() {
   const startTask = async (location) => {
     console.log(csrfToken);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/ct/api/create_image/', {
+      const response = await axios.post('https://restaurantback-0509c72586a3.herokuapp.com/ct/api/create_image/', {
         latitude: location.lat,
         longitude: location.lng,
       }, {
@@ -110,7 +110,7 @@ function MyMapComponent() {
   
     try {
         const response = await axios.post(
-          'http://127.0.0.1:8000/ct/api/check_state/',
+          'https://restaurantback-0509c72586a3.herokuapp.com/ct/api/check_state/',
           { task_id: taskID },
           {
             // ヘッダーにCSRFトークンを設定
