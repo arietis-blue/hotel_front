@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback} from 'react';
 import { GoogleMap, Marker, InfoWindow, LoadScript } from '@react-google-maps/api';
+import './App.css';
 import axios from 'axios';
 
 function MyMapComponent() {
@@ -175,127 +176,143 @@ function MyMapComponent() {
   // ---------
 
   return (
-    <div>
-      <div className="filter-container">
-        <label>予算:</label>
-        <select value={budget} onChange={handleBudgetChange}>
-          <option value="">指定なし</option>
-          <option value="B009">~500円</option>
-          <option value="B010">501～1000円</option>
-          <option value="B011">1001～1500円</option>
-          <option value="B001">1501～2000円</option>
-          <option value="B002">2001～3000円</option>
-          <option value="B003">3001～4000円</option>
-          <option value="B008">4001～5000円</option>
-          <option value="B004">5001～7000円</option>
-          <option value="B005">7001～10000円</option>
-          <option value="B006">10001～15000円</option>
-          <option value="B012">15001～20000円</option>
-          <option value="B013">20001～30000円</option>
-          <option value="B014">30001円〜</option>
-        </select>
-
-        <label>ジャンル:</label>
-        <select value={genre} onChange={handleGenreChange}>
-          <option value="">指定なし</option>
-          <option value="G001">居酒屋</option>
-          <option value="G002">ダイニングバー・バル</option>
-          <option value="G003">創作料理</option>
-          <option value="G004">和食</option>
-          <option value="G005">洋食</option>
-          <option value="G006">イタリアン・フレンチ</option>
-          <option value="G007">中華</option>
-          <option value="G008">焼肉・ホルモン</option>
-          <option value="G017">韓国料理</option>
-          <option value="G009">アジア・エスニック料理</option>
-          <option value="G010">各国料理</option>
-          <option value="G011">カラオケ・パーティ</option>
-          <option value="G012">バー・カクテル</option>
-          <option value="G013">ラーメン</option>
-          <option value="G016">お好み焼き・もんじゃ</option>
-          <option value="G014">カフェ・スイーツ</option>
-          <option value="G015">その他グルメ</option>
-        </select>
-
-        <label>検索範囲:</label>
-        <select value={range} onChange={handleRangeChange}>
-          <option value="1">300m</option>
-          <option value="2">500m</option>
-          <option value="3">1000m</option>
-          <option value="4">2000m</option>
-          <option value="5">3000m</option>
-        </select>
-
-      </div>
-
-      <div className="filter-container">
-
-      <label>その他項目:</label>
-      {Object.keys(otherOptions).map((option, index) => (
-        <div key={index}>
-          <input
-            type="checkbox"
-            name={option}
-            value={option}
-            checked={otherOptions[option] === 1}
-            onChange={handleCheckboxChange}
-          />
-          <label>{option}</label>
+    <div className="container">
+      <div className="selecter">
+        <h3>1. 必要に応じて項目を指定(任意)</h3>
+        <div className="filter-container row">
+          <div className="col-md-3">
+            <label style={{ fontSize: '20px', color: '#0d006f', fontWeight: 'bold', textDecoration: 'underline' }}>予算:</label>
+            <select className="form-control" value={budget} onChange={handleBudgetChange}>
+              <option value="">指定なし</option>
+              <option value="B009">~500円</option>
+              <option value="B010">501～1000円</option>
+              <option value="B011">1001～1500円</option>
+              <option value="B001">1501～2000円</option>
+              <option value="B002">2001～3000円</option>
+              <option value="B003">3001～4000円</option>
+              <option value="B008">4001～5000円</option>
+              <option value="B004">5001～7000円</option>
+              <option value="B005">7001～10000円</option>
+              <option value="B006">10001～15000円</option>
+              <option value="B012">15001～20000円</option>
+              <option value="B013">20001～30000円</option>
+              <option value="B014">30001円〜</option>
+            </select>
+          </div>
+          <div className="col-md-3">
+            <label style={{ fontSize: '20px', color: '#0d006f' , fontWeight: 'bold', textDecoration: 'underline'}}>ジャンル:</label>
+            <select className="form-control" value={genre} onChange={handleGenreChange}>
+              <option value="">指定なし</option>
+              <option value="G001">居酒屋</option>
+              <option value="G002">ダイニングバー・バル</option>
+              <option value="G003">創作料理</option>
+              <option value="G004">和食</option>
+              <option value="G005">洋食</option>
+              <option value="G006">イタリアン・フレンチ</option>
+              <option value="G007">中華</option>
+              <option value="G008">焼肉・ホルモン</option>
+              <option value="G017">韓国料理</option>
+              <option value="G009">アジア・エスニック料理</option>
+              <option value="G010">各国料理</option>
+              <option value="G011">カラオケ・パーティ</option>
+              <option value="G012">バー・カクテル</option>
+              <option value="G013">ラーメン</option>
+              <option value="G016">お好み焼き・もんじゃ</option>
+              <option value="G014">カフェ・スイーツ</option>
+              <option value="G015">その他グルメ</option>
+            </select>
+          </div>
+          <div className="col-md-3">
+            <label style={{ fontSize: '20px', color: '#0d006f', fontWeight: 'bold', textDecoration: 'underline' }}>検索範囲:</label>
+            <select className="form-control" value={range} onChange={handleRangeChange}>
+              <option value="1">300m</option>
+              <option value="2">500m</option>
+              <option value="3">1000m</option>
+              <option value="4">2000m</option>
+              <option value="5">3000m</option>
+            </select>
+          </div>
         </div>
-        ))}
+        <div className="filter-container row">
+          <div className="col-md-12">
+            <label style={{ fontSize: '20px', color: '#0d006f' ,fontWeight: 'bold', textDecoration: 'underline'}}>その他項目:</label>
+            <div className="other-options-container">
+            {Object.keys(otherOptions).map((option, index) => (
+              <div key={index} className="other-option-item">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  name={option}
+                  value={option}
+                  checked={otherOptions[option] === 1}
+                  onChange={handleCheckboxChange}
+                />
+                <label className="form-check-label">{option}</label>
+              </div>
+            ))}
+            </div>
+          </div>
+        </div>
       </div>
-
-      <LoadScript
-        googleMapsApiKey={process.env.REACT_APP_GM_API}
-      >
+      <div className="map-container">
+        <h3 style={{ padding: '10px' }}>2. 地図上で位置を指定して飲食店を検索</h3>
+        <LoadScript
+          googleMapsApiKey={process.env.REACT_APP_GM_API}
+        >
           <GoogleMap
             mapContainerStyle={containerStyle}
-            center={center} // 初期値としてのみ使用
+            center={center}
             zoom={15}
             onClick={onClickHandler}
-            onLoad={onMapLoad} // ロード時のハンドラ
+            onLoad={onMapLoad}
           >
-            {selectedLocation && (
-              <Marker position={selectedLocation} onClick={markerClickHandler} />
-            )}
-            {searchButtonVisible && (
-              <InfoWindow position={selectedLocation} onCloseClick={() => setSearchButtonVisible(false)}>
-                <button onClick={searchButtonClickHandler}>周辺のレストランを検索する</button>
-              </InfoWindow>
-            )}
-            {resMarkers.map((marker, index) => (
-              <Marker
-                key={index}
-                position={{ lat: marker.lat, lng: marker.lng }}
-                icon={createCustomMarkerIcon('lightgreen','green', 10)}
-                onClick={() => onMarkerClick(marker)} // クリックハンドラを追加
-              />
-            ))}
-            {selectedMarker && (
-              <InfoWindow
-                position={{ lat: selectedMarker.lat, lng: selectedMarker.lng }}
-                onCloseClick={() => setSelectedMarker(null)} // 閉じるボタンをクリックした際の処理
-              >
-                <div>
-                  <h4>{selectedMarker.name}</h4> 
-                  <button onClick={() => displayURL(selectedMarker)}>サイトを表示</button>
-                  <h4>別タブで開く</h4>
-                  {/* リンクにしたい場合はこっちを採用 */}
-                  <a href={selectedMarker.url} target="_blank" rel="noopener noreferrer">
-                    HOT PEPPERサイトへ
-                  </a>
-                </div>
-              </InfoWindow>
-            )}
-          </GoogleMap>
-      </LoadScript>
+              {selectedLocation && (
+                <Marker position={selectedLocation} onClick={markerClickHandler} />
+              )}
+              {searchButtonVisible && (
+                <InfoWindow position={selectedLocation} onCloseClick={() => setSearchButtonVisible(false)}>
+                  <button className="btn btn-success" onClick={searchButtonClickHandler}>周辺のレストランを検索する</button>
+                </InfoWindow>
+              )}
+              {resMarkers.map((marker, index) => (
+                <Marker
+                  key={index}
+                  position={{ lat: marker.lat, lng: marker.lng }}
+                  icon={createCustomMarkerIcon('lightgreen','green', 10)}
+                  onClick={() => onMarkerClick(marker)} // クリックハンドラを追加
+                />
+              ))}
+              {selectedMarker && (
+                <InfoWindow
+                  position={{ lat: selectedMarker.lat, lng: selectedMarker.lng }}
+                  onCloseClick={() => setSelectedMarker(null)} // 閉じるボタンをクリックした際の処理
+                >
+                  <div>
+                    <h4>{selectedMarker.name}</h4> 
+                    <button className="btn btn-primary" onClick={() => displayURL(selectedMarker)}>サイトを表示</button>
+                    <h4>別タブで開く</h4>
+                    {/* リンクにしたい場合はこっちを採用 */}
+                    <a href={selectedMarker.url} target="_blank" rel="noopener noreferrer">
+                      HOT PEPPERサイトへ
+                    </a>
+                  </div>
+                </InfoWindow>
+              )}
+            </GoogleMap>
+        </LoadScript>
+      </div>
       {resMarkers.length === 0 && taskState === 'READY' && (
         <p>レストランが見つかりませんでした</p>
       )}
-      {iframeUrl && <iframe src={iframeUrl} width="100%" height="500px" title="your selected restaurant" />}
-      Powered by <a href="http://webservice.recruit.co.jp/">ホットペッパー Webサービス</a>
+      {iframeUrl && <iframe className="w-100" src={iframeUrl} height="500px" title="your selected restaurant" />}
+      <div>
+        Powered by <a href="http://webservice.recruit.co.jp/">ホットペッパー Webサービス</a>
+      </div>
     </div>
   );
+
 }
 
 export default MyMapComponent;
+
+
